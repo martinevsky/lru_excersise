@@ -10,17 +10,11 @@ class LRUCacheWithBoost
 {
 public:
 	explicit LRUCacheWithBoost (size_t maxSize)
-		:m_maxSize (maxSize),
-		m_mapBuckets (std::max (maxSize / 2, size_t (100))), //© folly
+		:m_mapBuckets (std::max (maxSize / 2, size_t (100))), //© folly
 		m_mapTraits (m_mapBuckets.data(), m_mapBuckets.size()),
 		m_map (m_mapTraits)
 	{
-	}
-
-	~LRUCacheWithBoost()
-	{
-		m_map.clear();
-		m_list.clear_and_dispose (std::default_delete<Node>());
+		m_nodes.reserve (maxSize);
 	}
 
 public:
@@ -39,19 +33,28 @@ public:
 		return findRes->m_value;
 	}
 
-	void Set (KeyType key, ValueType value)
+	void Set (KeyType key, ValueType value) noexcept
 	{
 		const auto findRes = m_map.find (key, HasherType(), KeyValueEqual());
 		if (findRes == m_map.end())
 		{
-			const auto newNode = new Node (key, value);
-			m_map.insert (*newNode);
-			m_list.push_front (*newNode);
-
-			if (m_map.size() > m_maxSize)
+			if (m_nodes.capacity() == m_nodes.size())
 			{
-				m_map.erase (m_map.iterator_to (m_list.back()));
-				m_list.pop_back_and_dispose (std::default_delete<Node>());
+				Node& back = m_list.back();
+				m_list.pop_back();
+				m_map.erase (m_map.iterator_to (back));
+
+				back.m_key = key;
+				back.m_value = value;
+
+				m_list.push_front (back);
+				m_map.insert (back);
+			}
+			else
+			{
+				m_nodes.emplace_back (key, value);
+				m_map.insert (m_nodes.back());
+				m_list.push_front (m_nodes.back());
 			}
 		}
 		else
@@ -70,7 +73,7 @@ private:
 		{
 		}
 
-		const KeyType m_key;
+		KeyType m_key;
 		ValueType m_value;
 
 		friend bool operator== (const Node& lhs, const Node& rhs)
@@ -107,7 +110,7 @@ private:
 	}
 
 private:
-	const size_t m_maxSize;
+	std::vector<Node> m_nodes;
 
 	std::vector<NodeMap::bucket_type> m_mapBuckets;
 	NodeMap::bucket_traits m_mapTraits;
