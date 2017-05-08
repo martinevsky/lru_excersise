@@ -10,7 +10,7 @@ class LRUCacheWithBoost
 {
 public:
 	explicit LRUCacheWithBoost (size_t maxSize)
-		:m_mapBuckets (std::max (maxSize / 2, size_t (100))), //© folly
+		:m_mapBuckets (std::max (maxSize, size_t (100))), //© folly
 		m_mapTraits (m_mapBuckets.data(), m_mapBuckets.size()),
 		m_map (m_mapTraits)
 	{
@@ -65,7 +65,7 @@ public:
 	}
 
 private:
-	typedef boost::intrusive::link_mode<boost::intrusive::safe_link> LinkMode;
+	typedef boost::intrusive::link_mode<boost::intrusive::normal_link> LinkMode;
 
 	struct Node : public boost::intrusive::unordered_set_base_hook<LinkMode>, public boost::intrusive::list_base_hook<LinkMode>
 	{
