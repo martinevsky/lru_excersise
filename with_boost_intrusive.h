@@ -10,7 +10,7 @@ class LRUCacheWithBoost
 {
 public:
 	explicit LRUCacheWithBoost (size_t maxSize)
-		:m_mapBuckets (std::max (maxSize, size_t (100))), //© folly
+		:m_mapBuckets (std::max (maxSize, size_t (100))), //Â© folly
 		m_mapTraits (m_mapBuckets.data(), m_mapBuckets.size()),
 		m_map (m_mapTraits)
 	{
