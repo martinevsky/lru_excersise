@@ -13,4 +13,4 @@ add_subdirectory (./external/benchmark)
 include_directories (./external/benchmark/include) 
 link_libraries (benchmark)
 
-add_executable (lrut main.cpp)
+add_executable (lrub main_benchmark.cpp)
