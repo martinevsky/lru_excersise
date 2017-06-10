@@ -14,3 +14,11 @@ include_directories (./external/benchmark/include)
 link_libraries (benchmark)
 
 add_executable (lrub main_benchmark.cpp)
+
+set (gtest_force_shared_crt ON)
+add_subdirectory (./external/googletest)
+
+include_directories (./external/googletest/googletest/include) 
+link_libraries (gtest)
+link_libraries (gtest_main)
+add_executable (lrut main_test.cpp)
