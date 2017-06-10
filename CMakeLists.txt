@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 3.6)
 project (lru)
 
+set (Boost_DEBUG ON)
+set (Boost_DETAILED_FAILURE_MSG ON)
 find_package  (Boost REQUIRED COMPONENTS system)
 
 link_libraries (${Boost_LIBRARIES})
